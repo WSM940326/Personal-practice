@@ -1,0 +1,49 @@
+<style>
+
+  @keyframes spin3d {
+    from {
+      transform: rotatex(0) rotatey(0);
+    }
+    to {
+      transform: rotatex(360deg) rotatey(3600deg);
+    }
+  }
+  .plane {
+    position: absolute;
+    transform-style: preserve-3d;
+    top: 50vh;
+    left: 50vw;
+    animation: spin3d 50s infinite linear;
+  }
+  body:hover .plane {
+    animation-play-state: paused;
+  }
+  .dot {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    background-color: red;
+  }
+</style>
+<div class="plane">
+  
+<script>
+
+  plot3D((x,y) => 2* (Math.sin(x) + Math.cos(y)), 20, 0.5)
+
+  function plot3D(f, factor = 1, step = 0.1, xstart = -2 * Math.PI, xend = 2 * Math.PI, ystart = xstart, yend = xend) {
+
+      for(var x = xstart; x<xend; x+=step) {
+          for(var y = ystart; y<yend; y+=step) {
+              var z = f(x,y)
+              document.write(`
+                  <span class="dot" style="transform: translate3d(${x*factor}px, ${y*factor}px, ${z*factor}px);background-color:hsl(${z*20}, 80%,80%);"></span>
+              `)
+          }
+      }
+
+  }
+
+</script>
+
+</div>

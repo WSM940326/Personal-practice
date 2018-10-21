@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vue</title>
+  <style>
+    .completed .todo-content {
+      text-decoration: line-through;
+    }
+
+    @supports(display: flex) {
+      div {
+        /*display: flex;*/
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <product id="345678998765"></product>
+
+  <slider foo="bar" ladjf></slider>
+
+  <marquee></marquee>
+  
+  Web Components
+
+  <div id="app">
+    <div>
+      <input type="checkbox" @click="toggleSelectAll" :checked="isAllSelected">
+      <input type="text" @keyup.enter="addTodo" v-model.trim="todoText">
+    </div>
+    <ul>
+      <li :class="todoItemClasses(todo)" v-for="(todo, index) of showingTodos">
+        <input type="checkbox" v-model="todo.done">
+        <span v-show="index != editingIndex" @dblclick="edit(index, $event)" class="todo-content">{{todo.content}}</span>
+        <input v-focus ref="editTodo" v-if="index == editingIndex" type="text" v-model="todo.content" @blur="editingIndex = -1">
+        <span @click="delTodo(todo)">&times;</span>
+      </li>
+    </ul>
+    <div>
+      <span> {{ leftTodosCount }} item{{ itemPlural }} left</span>
+      <span>
+        <label><input type="radio" v-model="showingCategory" value="all"> all</label>
+        <label><input type="radio" v-model="showingCategory" value="active"> active</label>
+        <label><input type="radio" v-model="showingCategory" value="completed"> completed</label>
+      </span>
+
+      <button @click="clearCompleted" v-if="showClearButton">Clear completed</button>
+    </div>
+
+  </div>
+</body>
+<script src="vue-2.5.17.js"></script>
+<script>
+
+  Vue.directive('focus', {
+    inserted: function(el) {
+      el.focus()
+    }
+  })
+  
+  var app = new Vue({
+    el: '#app',
+    data: {
+      editingIndex: -1,
+      todoText: '',
+      showingCategory: 'all',
+      todos: [{
+        content: 'eat',
+        done: false,
+      }, {
+        content: 'drink',
+        done: true,
+      }],
+    },
+    computed: {
+      isAllSelected: function(){
+        if (this.showingTodos.length == 0) {
+          return false
+        }
+        return this.showingTodos.every(it=>it.done)
+      },
+      showClearButton: function(){
+        return this.todos.some(it => it.done)
+      },
+      leftTodosCount: function(){
+        return this.todos.filter(it=>!it.done).length
+      },
+      itemPlural: function(){
+        return this.todos.filter(it=>!it.done).length > 1 ? 's' : '' 
+      },
+      showingTodos: function() {
+        if (this.showingCategory === 'all') {
+          return this.todos
+        }
+        if (this.showingCategory === 'active') {
+          return this.todos.filter(it => it.done === false)
+        }
+        return this.todos.filter(it => it.done === true)
+      },
+    },
+    methods: {
+      edit(index, e) {
+        this.editingIndex = index
+        // Vue.nextTick(() => {
+        //   this.$refs.editTodo[this.editingIndex].focus()
+        // })
+      },
+      todoItemClasses: function(todo) {
+        return {
+          completed: todo.done,
+          active: !todo.done,
+        }
+      },
+      toggleSelectAll: function() {
+        if (this.isAllSelected) {
+          app.todos.forEach(it=>it.done = false)
+        } else {
+          app.todos.forEach(it=>it.done = true)
+        }
+      },
+      clearCompleted(){
+        app.$data.todos = app.$data.todos.filter(it => !it.done)
+      },
+      delTodo: function(todo) {
+        debugger
+        var idx = app.todos.indexOf(todo)
+        app.todos.splice(idx, 1)
+      },
+      addTodo: function(e) {
+        if (!app.$data.todoText) {
+          return
+        }
+        app.$data.todos.push({
+          content: app.$data.todoText,
+          done: false,
+        })
+        app.$data.todoText = ''
+      },
+    }
+  })
+
+
+
+</script>
+</html>
